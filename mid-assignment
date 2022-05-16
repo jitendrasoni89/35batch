@@ -1,0 +1,101 @@
+ASSIGNMENT 1:
+#######################################################################################
+1. kind difference ReplicationController vs ReplicaSet
+   In ReplicaSet in selector we have matchLabels
+
+2. kubectl apply -f kubia-replicaset.yaml
+
+3. [root@ip-172-31-18-103 05-services]# kubectl apply -f kubia-svc-replicaset-jit.yaml
+   service/kubia-replicaset created
+   
+   [root@ip-172-31-18-103 05-services]# kubectl get svc
+   NAME               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+   kubia-replicaset   ClusterIP   10.99.10.99   <none>        80/TCP    5s
+
+4. [root@ip-172-31-18-103 05-services]# curl 10.99.10.99:80
+   You've hit kubia-fmtxm
+
+5. kubectl label pods kubia-fmtxm app=kubia1 --overwrite
+   On changing the label of pod from kubia to kubia1, New pod is got created with label as kubia
+
+   [root@ip-172-31-18-103 05-services]# kubectl get pods --show-labels
+   NAME          READY   STATUS    RESTARTS   AGE   LABELS
+   kubia-fmtxm   1/1     Running   0          10m   app=kubia1
+   kubia-ggg76   1/1     Running   0          10m   app=kubia
+   kubia-m22n5   1/1     Running   0          10m   app=kubia
+   kubia-rnfsr   1/1     Running   0          14s   app=kubia
+   
+   [root@ip-172-31-18-103 05-services]# curl 10.99.10.99:80
+   You've hit kubia-m22n5
+
+
+   On changing the label back from kubia1 to kubai, most recently created pod is got deleted.
+   
+   [root@ip-172-31-18-103 05-services]# kubectl label pods kubia-fmtxm app=kubia --overwrite
+   pod/kubia-fmtxm labeled
+   
+   [root@ip-172-31-18-103 05-services]# kubectl get pods --show-labels
+   NAME          READY   STATUS        RESTARTS   AGE     LABELS
+   kubia-fmtxm   1/1     Running       0          13m     app=kubia
+   kubia-ggg76   1/1     Running       0          13m     app=kubia
+   kubia-m22n5   1/1     Running       0          13m     app=kubia
+   kubia-rnfsr   1/1     Terminating   0          2m50s   app=kubia
+   
+   [root@ip-172-31-18-103 05-services]# kubectl get pods --show-labels
+   NAME          READY   STATUS    RESTARTS   AGE   LABELS
+   kubia-fmtxm   1/1     Running   0          14m   app=kubia
+   kubia-ggg76   1/1     Running   0          14m   app=kubia
+   kubia-m22n5   1/1     Running   0          14m   app=kubia
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+ASSIGNMENT 2:
+#######################################################################################
+kubectl apply -f cronjob.yaml
+
+[root@ip-172-31-18-103 04-controllers]# kubectl get cj
+NAME                              SCHEDULE             SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+batch-job-every-fifteen-minutes   0,15,30,45 * * * *   False     0        2m37s           4m50s
+
+[root@ip-172-31-18-103 04-controllers]# kubectl get jobs
+NAME                                         COMPLETIONS   DURATION   AGE
+batch-job-every-fifteen-minutes-1652621400   1/1           2m4s       2m42s
+
+
+[root@ip-172-31-18-103 04-controllers]# kubectl get po
+NAME                                               READY   STATUS      RESTARTS   AGE
+batch-job-every-fifteen-minutes-1652621400-4r4b2   0/1     Completed   0          4m9s
+
+
+[root@ip-172-31-18-103 04-controllers]# kubectl logs batch-job-every-fifteen-minutes-1652621400-4r4b2
+Sun May 15 13:30:12 UTC 2022 Batch job starting
+Sun May 15 13:32:12 UTC 2022 Finished succesfully
+
+
+
+[root@ip-172-31-18-103 04-controllers]# kubectl get cj
+NAME                              SCHEDULE             SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+batch-job-every-fifteen-minutes   0,15,30,45 * * * *   False     1        2m5s            79m
+[root@ip-172-31-18-103 04-controllers]# kubectl get jobs
+NAME                                         COMPLETIONS   DURATION   AGE
+batch-job-every-fifteen-minutes-1652623200   1/1           2m4s       47m
+batch-job-every-fifteen-minutes-1652624100   1/1           2m4s       32m
+batch-job-every-fifteen-minutes-1652625000   1/1           2m5s       17m
+batch-job-every-fifteen-minutes-1652625900   0/1           2m1s       2m1s
+[root@ip-172-31-18-103 04-controllers]# kubectl get po
+NAME                                               READY   STATUS      RESTARTS   AGE
+batch-job-every-fifteen-minutes-1652624100-4wnhp   0/1     Completed   0          32m
+batch-job-every-fifteen-minutes-1652625000-zbnwq   0/1     Completed   0          17m
+batch-job-every-fifteen-minutes-1652625900-ttqlb   0/1     Completed   0          2m35s
+
+
+
+jobs v/s cronJobs: Jobs runs on user request and stopped once task is finished.
+                   CronJobs keeps executing on secified time automatically.
