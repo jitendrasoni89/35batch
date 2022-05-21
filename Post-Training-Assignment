@@ -1,0 +1,40 @@
+ASSIGNMENT 1: Replica Set
+-------------------------
+Daemon set run one pod on each worker node whereas replica set will run the pod specified number of pods irrespective of number of workers nodes.
+
+
+ASSIGNMENT 2: Deployment
+------------------------
+We can do RollingUpdate by specifing MinReadySeconds so that during version migration current pods will keep on running till the new pods comes up.
+kubectl patch deployment kubia -p '{"spec": {"minReadySeconds": 10}}'
+
+
+ASSIGNMENT 3: Service
+---------------------
+1. Verify client is triggering the request on correct clusterIP and port.
+2. verify target port in service, it should be 8000.
+3. Verify whether service selector is correct or not.
+4. Check the service end point using: kubectl get ep
+   It should have the pods details
+
+
+ASSIGNMENT 4: VOTING APP ASSIGNMENT
+-----------------------------------
+1. Voting app is deployed and running.
+2. On deleting voting pod: New voting pod is got created and app is working.
+3. On deleting worker pod: New worker pod is got created and app is working.
+4: On deleting db pod: New db pod is created but app(result pod) stopped working. Worker container is restarted.
+5. In order to make the result pod working. Redeployed the result pod again.
+
+
+Commands executed:
+cd example-voting-app/k8s-specifications/
+kubectl apply -f .
+kubectl delete po vote-94849dc97-55785
+kubectl get pods
+kubectl delete po worker-dd46d7584-5gxv5
+kubectl get pods
+kubectl delete po db-b54cd94f4-4hdhl
+kubectl get pods
+kubectl delete po result-5d57b59f4b-kbxrl
+kubectl get pods
